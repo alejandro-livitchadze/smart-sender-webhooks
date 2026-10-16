@@ -111,7 +111,7 @@ Layering: UI, then feature `queries.ts` (TanStack Query), then typed endpoint fu
 
 ## Tests
 
-`npm test` runs `src/api/http.test.ts` against the real client and the same MSW handlers, in Node.
+`npm test` runs `src/api/http.test.ts` against the real client and the same MSW handlers, in jsdom (MSW's Node server intercepts `fetch`).
 
 - **Required case:** two parallel requests get 401, one rotate goes out, both are retried and succeed. It also asserts that each endpoint is hit twice, the expiry handler is not called, and every request, rotate and CSRF fetch included, carries `X-Requested-With`.
 - **Late 401:** a 401 that arrives after the rotation finished reuses it. Still one rotate.
