@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import type { WebhookList } from '@/api/types'
-import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { QueryError } from '@/components/query-error'
 import { Button } from '@/components/ui/button'
-import { webhooksQuery } from './queries'
-import { useWebhookListParams } from './use-list-params'
+import { webhookListQuery } from './queries'
+import { useWebhookListParams } from './use-webhook-list-params'
 import { WebhookSearch } from './webhook-search'
 import { WebhooksTable } from './webhooks-table'
 
 export function WebhooksPage() {
   const { page, search, setPage, setSearch } = useWebhookListParams()
-  const { data, error, isPlaceholderData, refetch } = useQuery(webhooksQuery({ page, search }))
+  const { data, error, isPlaceholderData, refetch } = useQuery(webhookListQuery({ page, search }))
 
   return (
     <div className="space-y-4">
@@ -17,24 +17,9 @@ export function WebhooksPage() {
       <WebhookSearch value={search} onSearch={setSearch} />
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertTitle>Could not load webhooks</AlertTitle>
-          <AlertDescription>{error.message}</AlertDescription>
-          <AlertAction>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
-              Retry
-            </Button>
-          </AlertAction>
-        </Alert>
+        <QueryError title="Could not load webhooks" error={error} onRetry={() => refetch()} />
       ) : (
-        <WebhooksTable
-          list={data}
-          page={page}
-          search={search}
-          busy={isPlaceholderData}
-          setPage={setPage}
-          setSearch={setSearch}
-        />
+        <WebhooksTable list={data} busy={isPlaceholderData} />
       )}
 
       {data && !error && <Pagination list={data} setPage={setPage} />}

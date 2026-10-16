@@ -1,6 +1,6 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
-import { fetchMe, issueSession, login, revokeSession } from './auth-api'
+import { fetchMe, issueSession, login, revokeSession, type Credentials } from './auth-api'
 
 export const meQuery = queryOptions({
   queryKey: ['me'],
@@ -11,7 +11,7 @@ export const meQuery = queryOptions({
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (credentials: Parameters<typeof login>[0]) => {
+    mutationFn: async (credentials: Credentials) => {
       // The one-time token only ever lives in this local variable.
       const { device_session_token } = await login(credentials)
       await issueSession(device_session_token)

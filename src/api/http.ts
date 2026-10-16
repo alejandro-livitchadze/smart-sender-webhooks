@@ -1,4 +1,4 @@
-import type { ApiErrorBody, ApiErrorType } from '@/api/types'
+import type { ApiErrorBody } from '@/api/types'
 import { getFingerprint } from '@/lib/fingerprint'
 
 type RequestOptions = {
@@ -12,19 +12,12 @@ type Sent = { res: Response; gen: number }
 
 export class ApiError extends Error {
   readonly status: number
-  readonly type: ApiErrorType | undefined
   readonly fieldErrors: Record<string, string[]>
 
-  constructor(
-    status: number,
-    message: string,
-    type?: ApiErrorType,
-    fieldErrors: Record<string, string[]> = {},
-  ) {
+  constructor(status: number, message: string, fieldErrors: Record<string, string[]> = {}) {
     super(message)
     this.name = 'ApiError'
     this.status = status
-    this.type = type
     this.fieldErrors = fieldErrors
   }
 }
@@ -56,7 +49,7 @@ function toApiError(status: number, text: string): ApiError {
     // Not JSON (a proxy error page, for example): use the generic message below.
   }
   const message = error?.message ?? `Request failed (${status})`
-  return new ApiError(status, message, error?.type, error?.payload)
+  return new ApiError(status, message, error?.payload)
 }
 
 async function sendWithRetries(path: string, opts: RequestOptions): Promise<Response> {

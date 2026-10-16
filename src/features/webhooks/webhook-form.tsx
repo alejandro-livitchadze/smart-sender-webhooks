@@ -12,8 +12,8 @@ import { useUpdateWebhook } from './queries'
 
 // Required fields only: the server owns the URL format and its 422 lands under the field.
 const schema = z.object({
-  name: z.string().trim().min(1, 'Name is required'),
-  url: z.string().trim().min(1, 'URL is required'),
+  name: z.string().trim().min(1, { error: 'Name is required' }),
+  url: z.string().trim().min(1, { error: 'URL is required' }),
 })
 
 export function WebhookForm({ webhook, backTo }: { webhook: Webhook; backTo: string }) {
@@ -41,7 +41,9 @@ export function WebhookForm({ webhook, backTo }: { webhook: Webhook; backTo: str
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit webhook</CardTitle>
+        <CardTitle>
+          <h1>Edit webhook</h1>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form noValidate onSubmit={onSubmit} className="grid gap-4">

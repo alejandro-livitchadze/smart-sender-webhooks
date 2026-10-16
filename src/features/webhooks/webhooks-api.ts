@@ -3,8 +3,10 @@ import type { Webhook, WebhookInput, WebhookList } from '@/api/types'
 
 const PAGE_SIZE = 10
 
+export type WebhookListParams = { page: number; search: string }
+
 export function fetchWebhooks(
-  { page, search }: { page: number; search: string },
+  { page, search }: WebhookListParams,
   signal?: AbortSignal,
 ): Promise<WebhookList> {
   const params = new URLSearchParams({

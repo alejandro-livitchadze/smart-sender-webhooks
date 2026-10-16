@@ -1,25 +1,23 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { WebhookInput } from '@/api/types'
-import { fetchWebhook, fetchWebhooks, updateWebhook } from './webhooks-api'
+import { fetchWebhook, fetchWebhooks, updateWebhook, type WebhookListParams } from './webhooks-api'
 
-type ListParams = Parameters<typeof fetchWebhooks>[0]
-
-export const webhookKeys = {
+const webhookKeys = {
   all: ['webhooks'] as const,
   lists: () => [...webhookKeys.all, 'list'] as const,
-  list: (params: ListParams) => [...webhookKeys.lists(), params] as const,
+  list: (params: WebhookListParams) => [...webhookKeys.lists(), params] as const,
   detail: (id: number) => [...webhookKeys.all, 'detail', id] as const,
 }
 
 // keepPreviousData: paging or searching keeps the old rows on screen until the new ones arrive.
-export const webhooksQuery = (params: ListParams) =>
+export const webhookListQuery = (params: WebhookListParams) =>
   queryOptions({
     queryKey: webhookKeys.list(params),
     queryFn: ({ signal }) => fetchWebhooks(params, signal),
     placeholderData: keepPreviousData,
   })
 
-export const webhookQuery = (id: number) =>
+export const webhookDetailQuery = (id: number) =>
   queryOptions({
     queryKey: webhookKeys.detail(id),
     queryFn: ({ signal }) => fetchWebhook(id, signal),

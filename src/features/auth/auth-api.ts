@@ -5,10 +5,9 @@ import { getFingerprint } from '@/lib/fingerprint'
 // shortcut: fixed captcha token (the mock takes any non-empty one), wire a real widget before prod.
 const CAPTCHA_TOKEN = 'dev-captcha-token'
 
-export function login(credentials: {
-  email: string
-  password: string
-}): Promise<{ device_session_token: string }> {
+export type Credentials = { email: string; password: string }
+
+export function login(credentials: Credentials): Promise<{ device_session_token: string }> {
   return request('/auth/login', {
     method: 'POST',
     headers: { 'X-Captcha-Token': CAPTCHA_TOKEN },

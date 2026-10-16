@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useParams } from 'react-router'
 import { ApiError } from '@/api/http'
-import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { QueryError } from '@/components/query-error'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getFrom } from '@/lib/location-state'
-import { webhookQuery } from './queries'
+import { webhookDetailQuery } from './queries'
 import { WebhookForm } from './webhook-form'
 
 export function WebhookEditPage() {
@@ -24,7 +24,7 @@ export function WebhookEditPage() {
 }
 
 function EditBody({ id, backTo }: { id: number; backTo: string }) {
-  const { data, error, refetch } = useQuery(webhookQuery(id))
+  const { data, error, refetch } = useQuery(webhookDetailQuery(id))
 
   // Data wins over a failed background refetch, so an open form is never thrown away.
   if (data) return <WebhookForm webhook={data} backTo={backTo} />
@@ -33,7 +33,9 @@ function EditBody({ id, backTo }: { id: number; backTo: string }) {
     return (
       <Card>
         <CardHeader>
-          <h1 className="font-medium">Webhook not found</h1>
+          <CardTitle>
+            <h1>Webhook not found</h1>
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-muted-foreground">
           It may have been removed. Use the link above to return to the list.
@@ -43,17 +45,7 @@ function EditBody({ id, backTo }: { id: number; backTo: string }) {
   }
 
   if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertTitle>Could not load the webhook</AlertTitle>
-        <AlertDescription>{error.message}</AlertDescription>
-        <AlertAction>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </AlertAction>
-      </Alert>
-    )
+    return <QueryError title="Could not load the webhook" error={error} onRetry={() => refetch()} />
   }
 
   return (

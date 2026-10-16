@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { useWebhookListParams } from './use-webhook-list-params'
 
 const COLUMNS = 4
 const SKELETON_ROWS = 5
@@ -19,12 +20,8 @@ const SKELETON_ROWS = 5
 type WebhooksTableProps = {
   /** `undefined` while the first page is loading. */
   list: WebhookList | undefined
-  page: number
-  search: string
   /** The rows on screen belong to the previous page or search. */
   busy: boolean
-  setPage: (page: number) => void
-  setSearch: (search: string) => void
 }
 
 export function WebhooksTable(props: WebhooksTableProps) {
@@ -47,7 +44,7 @@ export function WebhooksTable(props: WebhooksTableProps) {
   )
 }
 
-function Rows({ list, page, search, busy, setPage, setSearch }: WebhooksTableProps) {
+function Rows({ list, busy }: WebhooksTableProps) {
   // Stale empty rows would flash a wrong empty message, so they count as loading too.
   if (!list || (busy && list.data.length === 0)) return <SkeletonRows />
   if (list.data.length > 0) {
@@ -57,13 +54,7 @@ function Rows({ list, page, search, busy, setPage, setSearch }: WebhooksTablePro
   return (
     <TableRow>
       <TableCell colSpan={COLUMNS} className="py-10 text-center text-muted-foreground">
-        <EmptyMessage
-          page={page}
-          last={list.paging.pages.last}
-          search={search}
-          setPage={setPage}
-          setSearch={setSearch}
-        />
+        <EmptyMessage last={list.paging.pages.last} />
       </TableCell>
     </TableRow>
   )
@@ -109,11 +100,9 @@ function SkeletonRows() {
   ))
 }
 
-type EmptyMessageProps = Pick<WebhooksTableProps, 'page' | 'search' | 'setPage' | 'setSearch'> & {
-  last: number
-}
+function EmptyMessage({ last }: { last: number }) {
+  const { page, search, setPage, setSearch } = useWebhookListParams()
 
-function EmptyMessage({ page, last, search, setPage, setSearch }: EmptyMessageProps) {
   if (page > last) {
     return (
       <div className="grid justify-items-center gap-3">
