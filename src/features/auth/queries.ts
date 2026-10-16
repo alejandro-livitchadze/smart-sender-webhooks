@@ -11,6 +11,7 @@ export const meQuery = queryOptions({
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
+    gcTime: 0, // don't keep the { email, password } variables in the MutationCache after login
     mutationFn: async (credentials: Credentials) => {
       // The one-time token only ever lives in this local variable.
       const { device_session_token } = await login(credentials)
@@ -25,9 +26,10 @@ export function useLogout() {
   const navigate = useNavigate()
   return useMutation({
     mutationFn: revokeSession,
-    // onSettled, so a failed revoke still logs out locally. Navigate first, synchronously
-    // (flushSync): a still-mounted observer would re-create and refetch what clear() empties.
-    onSettled: async () => {
+    // Only on success: the session cookie is HttpOnly, so after a failed revoke the user is still
+    // logged in server-side. Navigate first, synchronously (flushSync): a still-mounted observer
+    // would re-create and refetch what clear() empties.
+    onSuccess: async () => {
       await navigate('/login', { replace: true, flushSync: true })
       queryClient.clear()
     },

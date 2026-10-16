@@ -17,6 +17,11 @@ export function AppLayout() {
               {user?.name}{' '}
               <span className="hidden text-muted-foreground sm:inline">{user?.email}</span>
             </span>
+            {logout.isError && (
+              <span role="alert" className="text-sm text-destructive">
+                Couldn&apos;t log out. Try again.
+              </span>
+            )}
             <Button
               variant="outline"
               size="sm"
