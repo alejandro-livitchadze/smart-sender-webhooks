@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
-import type { WebhookInput } from '@/api/types'
+import type { WebhookInput, WebhookList } from '@/api/types'
 import { fetchWebhook, fetchWebhooks, updateWebhook, type WebhookListParams } from './webhooks-api'
 
 const webhookKeys = {
@@ -29,6 +29,13 @@ export function useUpdateWebhook(id: number) {
     mutationFn: (input: WebhookInput) => updateWebhook(id, input),
     onSuccess: (webhook) => {
       queryClient.setQueryData(webhookKeys.detail(id), webhook)
+      // The lists aren't mounted on the edit page, so invalidating alone would show the old row
+      // until the refetch lands. Patch the cached rows now; the refetch still settles order/search.
+      queryClient.setQueriesData<WebhookList>(
+        { queryKey: webhookKeys.lists() },
+        (list) =>
+          list && { ...list, data: list.data.map((row) => (row.id === id ? webhook : row)) },
+      )
       return queryClient.invalidateQueries({ queryKey: webhookKeys.lists() })
     },
   })
