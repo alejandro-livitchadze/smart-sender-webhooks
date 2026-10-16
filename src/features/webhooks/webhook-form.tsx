@@ -32,7 +32,7 @@ export function WebhookForm({ webhook, backTo }: { webhook: Webhook; backTo: str
   const onSubmit = handleSubmit(async (values) => {
     try {
       await mutateAsync(values)
-      navigate(backTo)
+      navigate(backTo, { replace: true }) // so Back doesn't reopen the form that was just saved
     } catch (error) {
       setServerErrors(error, setError, ['name', 'url'])
     }

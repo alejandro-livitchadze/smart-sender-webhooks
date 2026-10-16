@@ -16,13 +16,15 @@ export function WebhooksPage() {
       <h1 className="text-xl font-semibold">Webhooks</h1>
       <WebhookSearch value={search} onSearch={setSearch} />
 
-      {error ? (
+      {/* Data wins over a failed background refetch, as on the edit page. */}
+      {error && !data ? (
         <QueryError title="Could not load webhooks" error={error} onRetry={() => refetch()} />
       ) : (
         <WebhooksTable list={data} busy={isPlaceholderData} />
       )}
 
-      {data && !error && <Pagination list={data} setPage={setPage} />}
+      {/* The empty states have their own buttons; a footer there would read "Page 2 of 1". */}
+      {data && data.data.length > 0 && <Pagination list={data} setPage={setPage} />}
     </div>
   )
 }

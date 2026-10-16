@@ -13,17 +13,25 @@ type WebhookSearchProps = {
 export function WebhookSearch({ value, onSearch }: WebhookSearchProps) {
   const [input, setInput] = useState(value)
   const [prevValue, setPrevValue] = useState(value)
+  const [sent, setSent] = useState(value)
 
-  // Back/forward changes the URL: take the new value over while rendering, not in an effect,
-  // so there is never a frame that shows the old text next to the new results.
+  // Back/forward and "Clear search" change the URL: take that value over while rendering, not in
+  // an effect, so no frame shows the old text next to the new results. Our own push coming back
+  // (`sent`) is skipped: the URL commits late, and the text typed meanwhile must survive.
   if (value !== prevValue) {
     setPrevValue(value)
-    setInput(value)
+    if (value !== sent) {
+      setSent(value)
+      setInput(value)
+    }
   }
 
   useEffect(() => {
     if (input === value) return
-    const timer = setTimeout(() => onSearch(input), DEBOUNCE_MS)
+    const timer = setTimeout(() => {
+      setSent(input)
+      onSearch(input)
+    }, DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [input, value, onSearch])
 
